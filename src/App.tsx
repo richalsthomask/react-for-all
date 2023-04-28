@@ -1,86 +1,127 @@
-import React, { useState } from "react";
-import logo from "./logo.svg";
+import React, { useEffect, useState } from "react";
 import "./App.css";
+import Form from "./Form";
 
-const fields: {
-  name: "firstName" | "lastName" | "email" | "dob";
+export interface FieldData {
   label: string;
-  type: string | undefined;
-}[] = [
-  {
-    name: "firstName",
-    label: "First Name",
-    type: undefined,
-  },
-  {
-    name: "lastName",
-    label: "Last Name",
-    type: undefined,
-  },
-  {
-    name: "email",
-    label: "Email",
-    type: undefined,
-  },
-  {
-    name: "dob",
-    label: "Date of Birth",
-    type: "date",
-  },
-];
+  value: string;
+}
 
-const defaultUserData = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  dob: "",
+export interface FormData {
+  label: string;
+  fields: FieldData[];
+}
+
+const getFormFromLocalData = () => {
+  return localStorage.getItem("formData")
+    ? JSON.parse(localStorage.getItem("formData") ?? "")
+    : null;
 };
 
 function App() {
-  const [userData, setUserData] = useState(defaultUserData);
+  const [forms, setForms] = useState<FormData[] | null>(() =>
+    getFormFromLocalData()
+  );
+  const [selectedForm, setSelectedForm] = useState<number | null>();
+  const [formName, setFormName] = useState("");
 
-  return (
-    <div className="w-full min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="max-w-xl mx-auto px-6 pt-4 pb-8 rounded-lg bg-white shadow-lg flex flex-col gap-3 items-start">
-        <div className="flex flex-row items-center justify-between gap-5">
-          <img src={logo} className="h-16 w-16" />
-          <span className="text-xl text-center">
-            Welcome to Lession 5 of $react-typescript with #tailwind
-          </span>
-        </div>
-        {fields.map((field, fieldIndex) => (
-          <div
-            key={fieldIndex}
-            className="w-full flex flex-col items-start gap-1"
-          >
-            <label>{field.label}</label>
+  const saveFormToLocalData = () => {
+    localStorage.setItem("formData", JSON.stringify(forms));
+  };
 
+  useEffect(() => {
+    if (forms) saveFormToLocalData();
+  }, [forms]);
+
+  if ((selectedForm || selectedForm === 0) && forms)
+    return (
+      <Form
+        form={forms[selectedForm]}
+        setFormCB={(formValue: FormData) => {
+          setForms((forms) =>
+            forms
+              ? forms.map((form, formIndex) =>
+                  formIndex === selectedForm || selectedForm === 0
+                    ? formValue
+                    : form
+                )
+              : null
+          );
+        }}
+        removeFormCB={() =>
+          setForms((forms) =>
+            forms
+              ? forms.filter((form, formIndex) => formIndex !== selectedForm)
+              : null
+          )
+        }
+        goBackCB={() => setSelectedForm(null)}
+      />
+    );
+  else
+    return (
+      <div className="w-full min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="max-w-6xl mx-auto px-6 pt-4 pb-8 flex flex-row items-center flex-wrap gap-4">
+          {forms?.map((form, formIndex) => (
+            <div
+              key={formIndex}
+              className="w-60 sm:w-80 h-40 bg-white rounded shadow-lg px-5 py-4 flex flex-col justify-center gap-2"
+            >
+              <label className="pt-4 w-full flex-grow text-lg font-semibold truncate">
+                {form.label}
+              </label>
+
+              <div className="w-full flex flex-row items-center justify-end gap-2">
+                <button
+                  onClick={() => setSelectedForm(formIndex)}
+                  className="px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
+                >
+                  Open
+                </button>
+                <button
+                  onClick={() =>
+                    setForms((forms) =>
+                      forms
+                        ? forms.filter(
+                            (_val, valIndex) => valIndex !== formIndex
+                          )
+                        : null
+                    )
+                  }
+                  className="px-4 py-2 text-white font-semibold bg-red-500 hover:bg-red-600 rounded-lg"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+          <div className="w-60 sm:w-80 h-40 bg-white rounded shadow-lg px-5 py-4 flex flex-col justify-center items-start gap-2">
+            <label className="text-center w-full font-semibold">
+              Create new form
+            </label>
             <input
-              type={field.type}
-              value={userData[field.name]}
-              onChange={(e) =>
-                setUserData((userData) => {
-                  return { ...userData, [field.name]: e.target.value };
-                })
-              }
-              className="px-3 py-1.5 w-full rounded-md border-2 border-gray-200"
+              className="w-full px-3 py-1.5 bg-gray-100"
+              placeholder="Enter form name..."
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
             />
+            <button
+              onClick={() => {
+                formName &&
+                  setForms((forms) => [
+                    ...(forms ?? []),
+                    { label: formName, fields: [] },
+                  ]);
+                setFormName("");
+              }}
+              className="ml-auto px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
+            >
+              Create
+            </button>
           </div>
-        ))}
-        <div className="flex flex-row items-center gap-5">
-          <button className="mt-2 px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg">
-            Submit
-          </button>
-          <button
-            onClick={() => setUserData(defaultUserData)}
-            className="mt-2 px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
-          >
-            Clear data
-          </button>
         </div>
       </div>
-    </div>
-  );
+    );
 }
 
 export default App;
