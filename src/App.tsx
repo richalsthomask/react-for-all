@@ -39,7 +39,7 @@ function App() {
             <label>{field.label}</label>
 
             <input
-              type={field.type}
+              type={field.type ?? "text"}
               className="px-3 py-1.5 w-full rounded-md border-2 border-gray-200"
             />
           </div>
