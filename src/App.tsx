@@ -2,42 +2,35 @@ import React, { useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 
-const fields: {
-  name: "firstName" | "lastName" | "email" | "dob";
+interface fieldData {
+  id: number;
   label: string;
-  type: string | undefined;
-}[] = [
-  {
-    name: "firstName",
-    label: "First Name",
-    type: undefined,
-  },
-  {
-    name: "lastName",
-    label: "Last Name",
-    type: undefined,
-  },
-  {
-    name: "email",
-    label: "Email",
-    type: undefined,
-  },
-  {
-    name: "dob",
-    label: "Date of Birth",
-    type: "date",
-  },
-];
+  value: string;
+}
 
-const defaultUserData = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  dob: "",
+const defaultFields = ["firstName", "lastName", "email"];
+
+const uniqueId = (data: fieldData[]) => {
+  let id = Math.random() * 100;
+  while (data?.find((ele) => ele.id === id)) {
+    id = Math.random() * 100;
+  }
+  return id;
 };
 
 function App() {
-  const [userData, setUserData] = useState(defaultUserData);
+  const [userData, setUserData] = useState<fieldData[]>(() => {
+    let data: fieldData[] = [];
+
+    for (let i = 0; i < defaultFields.length; i++) {
+      data = [
+        ...data,
+        { id: uniqueId(data), label: defaultFields[i], value: "" },
+      ];
+    }
+    return data;
+  });
+  const [fieldName, setFieldName] = useState("");
 
   return (
     <div className="w-full min-h-screen bg-gray-100 flex items-center justify-center">
@@ -48,31 +41,80 @@ function App() {
             Welcome to Lession 5 of $react-typescript with #tailwind
           </span>
         </div>
-        {fields.map((field, fieldIndex) => (
+        {userData?.map((field, fieldIndex) => (
           <div
             key={fieldIndex}
             className="w-full flex flex-col items-start gap-1"
           >
             <label>{field.label}</label>
 
-            <input
-              type={field.type}
-              value={userData[field.name]}
-              onChange={(e) =>
-                setUserData((userData) => {
-                  return { ...userData, [field.name]: e.target.value };
-                })
-              }
-              className="px-3 py-1.5 w-full rounded-md border-2 border-gray-200"
-            />
+            <div className="w-full flex flex-row gap-3">
+              <input
+                value={field.value}
+                onChange={(e) =>
+                  setUserData((userData) =>
+                    userData.map((val) =>
+                      val.id === field.id
+                        ? { ...val, value: e.target.value }
+                        : val
+                    )
+                  )
+                }
+                className="px-3 py-1.5 w-full rounded-md border-2 border-gray-200"
+              />
+              <button
+                onClick={() => {
+                  setUserData((userData) =>
+                    userData.filter((val) => val.id !== field.id)
+                  );
+                }}
+                className="px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         ))}
+        <div className="w-full flex flex-col items-start gap-1">
+          <label>Add new field</label>
+
+          <div className="w-full flex flex-row items-center gap-2">
+            <input
+              value={fieldName}
+              onChange={(e) => setFieldName(e.target.value)}
+              className="flex-grow px-3 py-1.5 w-full rounded-md border-2 border-gray-200"
+            />
+            <button
+              onClick={() => {
+                if (fieldName.length > 0) {
+                  setUserData((userData) => {
+                    return [
+                      ...userData,
+                      { id: uniqueId(userData), label: fieldName, value: "" },
+                    ];
+                  });
+
+                  setFieldName("");
+                }
+              }}
+              className="px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
+            >
+              Add
+            </button>
+          </div>
+        </div>
         <div className="flex flex-row items-center gap-5">
           <button className="mt-2 px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg">
             Submit
           </button>
           <button
-            onClick={() => setUserData(defaultUserData)}
+            onClick={() =>
+              setUserData((userData) =>
+                userData.map((val) => {
+                  return { ...val, value: "" };
+                })
+              )
+            }
             className="mt-2 px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
           >
             Clear data
