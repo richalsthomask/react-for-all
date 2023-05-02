@@ -3,16 +3,26 @@ import "./App.css";
 import Form from "./Form";
 
 export interface FieldData {
+  id: number;
   label: string;
   value: string;
 }
 
 export interface FormData {
+  id: number;
   label: string;
   fields: FieldData[];
 }
 
-const getFormFromLocalData = () => {
+const uniqueId = (data: FormData[]) => {
+  let id = Math.random() * 100;
+  while (data?.find((ele: FieldData | FormData) => ele.id === id)) {
+    id = Math.random() * 100;
+  }
+  return id;
+};
+
+export const getFormFromLocalData = () => {
   return localStorage.getItem("formData")
     ? JSON.parse(localStorage.getItem("formData") ?? "")
     : null;
@@ -36,14 +46,18 @@ function App() {
   if ((selectedForm || selectedForm === 0) && forms)
     return (
       <Form
-        form={forms[selectedForm]}
+        form={
+          forms?.find((val) => val.id === selectedForm) ?? {
+            id: uniqueId(forms ?? []),
+            label: formName,
+            fields: [],
+          }
+        }
         setFormCB={(formValue: FormData) => {
           setForms((forms) =>
             forms
               ? forms.map((form, formIndex) =>
-                  formIndex === selectedForm || selectedForm === 0
-                    ? formValue
-                    : form
+                  form.id === selectedForm ? formValue : form
                 )
               : null
           );
@@ -51,7 +65,16 @@ function App() {
         removeFormCB={() =>
           setForms((forms) =>
             forms
-              ? forms.filter((form, formIndex) => formIndex !== selectedForm)
+              ? forms.map((form) => {
+                  return form.id === selectedForm
+                    ? {
+                        ...form,
+                        fields: form.fields?.map((ele) => {
+                          return { ...ele, value: "" };
+                        }),
+                      }
+                    : form;
+                })
               : null
           )
         }
@@ -73,7 +96,7 @@ function App() {
 
               <div className="w-full flex flex-row items-center justify-end gap-2">
                 <button
-                  onClick={() => setSelectedForm(formIndex)}
+                  onClick={() => setSelectedForm(form.id)}
                   className="px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
                 >
                   Open
@@ -81,11 +104,7 @@ function App() {
                 <button
                   onClick={() =>
                     setForms((forms) =>
-                      forms
-                        ? forms.filter(
-                            (_val, valIndex) => valIndex !== formIndex
-                          )
-                        : null
+                      forms ? forms.filter((val) => val.id !== form.id) : null
                     )
                   }
                   className="px-4 py-2 text-white font-semibold bg-red-500 hover:bg-red-600 rounded-lg"
@@ -110,7 +129,7 @@ function App() {
                 formName &&
                   setForms((forms) => [
                     ...(forms ?? []),
-                    { label: formName, fields: [] },
+                    { id: uniqueId(forms ?? []), label: formName, fields: [] },
                   ]);
                 setFormName("");
               }}

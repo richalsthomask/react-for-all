@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import logo from "./logo.svg";
-import { FormData } from "./App";
+import { FieldData, FormData } from "./App";
+
+const uniqueId = (data: FieldData[]) => {
+  let id = Math.random() * 100;
+  while (data?.find((ele: FieldData | FormData) => ele.id === id)) {
+    id = Math.random() * 100;
+  }
+  return id;
+};
 
 export default function Form({
   form,
@@ -69,9 +77,17 @@ export default function Form({
             <button
               onClick={() => {
                 if (fieldName.length > 0) {
+                  console.log(form);
                   setFormCB({
                     ...form,
-                    fields: [...form.fields, { label: fieldName, value: "" }],
+                    fields: [
+                      ...form.fields,
+                      {
+                        id: uniqueId(form.fields),
+                        label: fieldName,
+                        value: "",
+                      },
+                    ],
                   });
 
                   setFieldName("");
