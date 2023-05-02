@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 
-interface fieldData {
+interface FieldData {
   id: number;
   label: string;
   value: string;
@@ -10,7 +10,7 @@ interface fieldData {
 
 const defaultFields = ["firstName", "lastName", "email"];
 
-const uniqueId = (data: fieldData[]) => {
+const uniqueId = (data: FieldData[]) => {
   let id = Math.random() * 100;
   while (data?.find((ele) => ele.id === id)) {
     id = Math.random() * 100;
@@ -19,8 +19,8 @@ const uniqueId = (data: fieldData[]) => {
 };
 
 function App() {
-  const [userData, setUserData] = useState<fieldData[]>(() => {
-    let data: fieldData[] = [];
+  const [userData, setUserData] = useState<FieldData[]>(() => {
+    let data: FieldData[] = [];
 
     for (let i = 0; i < defaultFields.length; i++) {
       data = [
