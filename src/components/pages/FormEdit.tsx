@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "raviger";
 
 import { uniqueId } from "../../utility/uniqueId";
 import { getForm, saveForm } from "../../utility/localStorageOperation";
-import { FieldData, FormData } from "../../interfaces";
+import { FormData } from "../../interfaces";
 
 export default function FormEdit({ formId }: { formId: number }) {
   const [form, setForm] = useState<FormData | null>(() => getForm(formId));

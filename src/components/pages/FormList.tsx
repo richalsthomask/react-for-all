@@ -59,11 +59,19 @@ export default function FormList({
 
               <div className="w-full flex flex-row items-center justify-end gap-2">
                 <Link
-                  href={preview ? "/preview/" + form.id : "/form/" + form.id}
+                  href={"/preview/" + form.id}
                   className="px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
                 >
                   Open
                 </Link>
+                {!preview && (
+                  <Link
+                    href={"/form/" + form.id}
+                    className="px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
+                  >
+                    Edit
+                  </Link>
+                )}
                 {!preview && (
                   <button
                     onClick={() => {

@@ -1,7 +1,6 @@
-export const uniqueId = (data: { id: number }[]) => {
+export const uniqueId = (data: { id: number }[]): number => {
   let id = Math.random() * 100000;
-  while (data?.find((ele) => ele.id === id)) {
-    id = Math.random() * 100000;
-  }
-  return Number(id);
+  if (data?.find((ele) => ele.id === id)) {
+    return uniqueId(data);
+  } else return Number(id);
 };

@@ -18,7 +18,7 @@ export default function BaseWrapper({ children }) {
               onChange={(e) => setSearchString(e.target.value)}
               className="bg-gray-600 border-b-2 px-2 border-gray-400 focus:border-gray-600 outline-none focus:outline-none"
               onKeyDown={(key) => {
-                if (key.key == "Enter") {
+                if (key.key === "Enter") {
                   setSearchString("");
                   navigate("/" + searchString);
                 }

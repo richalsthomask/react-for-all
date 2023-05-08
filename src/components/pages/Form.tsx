@@ -11,11 +11,10 @@ export default function Form({ formId }: { formId: number }) {
     if (form) saveForm(form);
   }, [form]);
 
-  const allFieldsFilled = form?.fields.find((val) => !val.value)
-    ? form?.fields.length - 1 < currentField
+  const allFieldsFilled =
+    form?.fields.length && form?.fields.length - 1 < currentField
       ? true
-      : false
-    : true;
+      : false;
 
   if (form === null)
     return (
