@@ -3,10 +3,9 @@ import { FieldData, FormData } from "./App";
 
 const uniqueId = (data: FieldData[]): number => {
   let id = Math.random() * 100;
-  while (data?.find((ele: FieldData | FormData) => ele.id === id)) {
+  if (data?.find((ele: FieldData | FormData) => ele.id === id)) {
     return uniqueId(data);
-  }
-  return id;
+  } else return id;
 };
 
 export default function Form({
@@ -20,7 +19,7 @@ export default function Form({
   removeFormCB: () => void;
   goBackCB: () => void;
 }) {
-  const [fieldName, setFieldName] = useState("");
+  const [newField, setNewField] = useState({ label: "", type: "string" });
 
   return (
     <div className="w-full min-h-screen bg-gray-100 flex items-center justify-center">
@@ -36,6 +35,7 @@ export default function Form({
             <div className="w-full flex flex-row items-center gap-2">
               <input
                 value={field.value}
+                type={field.type}
                 onChange={(e) =>
                   setFormCB({
                     ...form,
@@ -48,6 +48,7 @@ export default function Form({
                 }
                 className="flex-grow px-3 py-1.5 w-full rounded-md border-2 border-gray-200"
               />
+
               <button
                 onClick={() =>
                   setFormCB({
@@ -64,18 +65,43 @@ export default function Form({
             </div>
           </div>
         ))}
-        <div className="w-full flex flex-col items-start gap-1">
-          <label>Add new field</label>
+        <div className="mt-4 w-full flex flex-col items-start gap-1">
+          <label className="font-semibold">Add new field</label>
 
-          <div className="w-full flex flex-row items-center gap-2">
-            <input
-              value={fieldName}
-              onChange={(e) => setFieldName(e.target.value)}
-              className="flex-grow px-3 py-1.5 w-full rounded-md border-2 border-gray-200"
-            />
+          <div className="mt-2 w-full flex flex-row items-end gap-2">
+            <div className="w-full flex flex-col">
+              <span className="text-gray-700">Label</span>
+              <input
+                value={newField.label}
+                onChange={(e) =>
+                  setNewField((newField) => {
+                    return { ...newField, label: e.target.value };
+                  })
+                }
+                className="flex-grow px-3 py-1.5 w-full rounded-md border-2 border-gray-200"
+              />
+            </div>
+            <div className="w-full flex flex-col">
+              <span className="text-gray-700">type</span>
+              <select
+                value={newField.type}
+                className="flex-grow px-3 py-2 w-full rounded-md border-2 border-gray-200"
+                onChange={(e) => {
+                  setNewField((newField) => {
+                    return { ...newField, type: e.target.value };
+                  });
+                }}
+              >
+                {["text", "date"].map((val) => (
+                  <option value={val} key={val}>
+                    {val}
+                  </option>
+                ))}
+              </select>
+            </div>
             <button
               onClick={() => {
-                if (fieldName.length > 0) {
+                if (newField.label.length > 0) {
                   console.log(form);
                   setFormCB({
                     ...form,
@@ -83,13 +109,14 @@ export default function Form({
                       ...form.fields,
                       {
                         id: uniqueId(form.fields),
-                        label: fieldName,
+                        label: newField.label,
                         value: "",
+                        type: newField.type,
                       },
                     ],
                   });
 
-                  setFieldName("");
+                  setNewField({ label: "", type: "string" });
                 }
               }}
               className="px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"

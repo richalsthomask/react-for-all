@@ -6,6 +6,7 @@ export interface FieldData {
   id: number;
   label: string;
   value: string;
+  type: string;
 }
 
 export interface FormData {
@@ -17,10 +18,9 @@ export interface FormData {
 const uniqueId = (data: FormData[]): number => {
   let id = Math.random() * 100;
 
-  while (data?.find((ele: FieldData | FormData) => ele.id === id)) {
+  if (data?.find((ele: FieldData | FormData) => ele.id === id)) {
     return uniqueId(data);
-  }
-  return id;
+  } else return id;
 };
 
 export const getFormFromLocalData = () => {
