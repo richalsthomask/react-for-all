@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import logo from "./logo.svg";
 import { FieldData, FormData } from "./App";
 
-const uniqueId = (data: FieldData[]) => {
+const uniqueId = (data: FieldData[]): number => {
   let id = Math.random() * 100;
   while (data?.find((ele: FieldData | FormData) => ele.id === id)) {
-    id = Math.random() * 100;
+    return uniqueId(data);
   }
   return id;
 };

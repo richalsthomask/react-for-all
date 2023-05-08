@@ -14,10 +14,11 @@ export interface FormData {
   fields: FieldData[];
 }
 
-const uniqueId = (data: FormData[]) => {
+const uniqueId = (data: FormData[]): number => {
   let id = Math.random() * 100;
+
   while (data?.find((ele: FieldData | FormData) => ele.id === id)) {
-    id = Math.random() * 100;
+    return uniqueId(data);
   }
   return id;
 };
@@ -35,12 +36,8 @@ function App() {
   const [selectedForm, setSelectedForm] = useState<number | null>();
   const [formName, setFormName] = useState("");
 
-  const saveFormToLocalData = () => {
-    localStorage.setItem("formData", JSON.stringify(forms));
-  };
-
   useEffect(() => {
-    if (forms) saveFormToLocalData();
+    if (forms) localStorage.setItem("formData", JSON.stringify(forms));
   }, [forms]);
 
   if ((selectedForm || selectedForm === 0) && forms)
