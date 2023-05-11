@@ -1,4 +1,4 @@
-import { FormDataShort, FormData } from "../interfaces";
+import { FormDataShort, FormData } from "../components/data/interfaces";
 
 export const getForms = () => {
   return localStorage.getItem("formData")

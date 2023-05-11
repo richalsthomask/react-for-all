@@ -7,7 +7,7 @@ import {
   saveForm,
   saveForms,
 } from "../../utility/localStorageOperation";
-import { FormDataShort } from "../../interfaces";
+import { FormDataShort } from "../data/interfaces";
 import { uniqueId } from "../../utility/uniqueId";
 
 export default function FormList({

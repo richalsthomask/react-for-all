@@ -3,14 +3,17 @@ import { Link } from "raviger";
 
 import { uniqueId } from "../../utility/uniqueId";
 import { getForm, saveForm } from "../../utility/localStorageOperation";
-import { FormData } from "../../interfaces";
+import { FieldData, FormData } from "../data/interfaces";
+import EditField from "../common/EditField";
 
 export default function FormEdit({ formId }: { formId: number }) {
   const [form, setForm] = useState<FormData | null>(() => getForm(formId));
-  const [newField, setNewField] = useState<{
-    label: string;
-    type: string;
-  }>({ label: "", type: "text" });
+  const [newField, setNewField] = useState<FieldData>({
+    id: uniqueId(form?.fields ?? []),
+    label: "",
+    type: "text",
+    value: "",
+  });
 
   useEffect(() => {
     if (form) saveForm(form);
@@ -26,139 +29,74 @@ export default function FormEdit({ formId }: { formId: number }) {
     );
   else
     return (
-      <div className="flex-grow w-full bg-gray-100 flex items-center justify-center">
+      <div className="py-8 flex-grow w-full bg-gray-100 flex items-center justify-center">
         <div className="max-w-xl mx-auto px-6 pt-4 pb-8 rounded-lg bg-white shadow-lg flex flex-col gap-3 items-start">
           <span className="text-xl text-center font-semibold">
             {form.label}
           </span>
-          {form?.fields?.map((field, fieldIndex) => (
-            <div
-              key={fieldIndex}
-              className="w-full flex flex-row items-end gap-2"
-            >
-              <div className="w-full flex flex-col">
-                <span className="text-sm text-gray-600">label</span>
-                <input
-                  value={field.label}
-                  onChange={(e) =>
+          <div className="flex flex-col gap-3 divide-y divide-gray-300">
+            {form?.fields?.map((field, fieldIndex) => (
+              <div className="flex flex-row items-start gap-3">
+                <span className="mt-11 font-semibold text-gray-700">
+                  {fieldIndex + 1}.
+                </span>
+                <EditField
+                  key={fieldIndex}
+                  field={field}
+                  setField={(value) => {
                     setForm({
                       ...form,
                       fields: form.fields?.map((ele) =>
-                        ele.id === field.id
-                          ? { ...ele, label: e.target.value }
-                          : ele
+                        ele.id === field.id ? value : ele
                       ),
-                    })
-                  }
-                  className="flex-grow px-3 py-1.5 w-full rounded-md border-2 border-gray-200"
-                />
-              </div>
-              <div className="w-full flex flex-row items-center gap-2">
-                <div className="w-full flex flex-col">
-                  <span className="text-sm text-gray-600">type</span>
-                  <select
-                    value={field.type}
-                    className="flex-grow px-3 py-1.5 w-full rounded-md border-2 border-gray-200"
-                    onChange={(e) => {
-                      setForm({
-                        ...form,
-                        fields: form.fields?.map((ele) =>
-                          ele.id === field.id
-                            ? { ...ele, type: e.target.value }
-                            : ele
-                        ),
-                      });
-                    }}
-                  >
-                    {["text", "date"].map((val) => (
-                      <option value={val} key={val}>
-                        {val}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <button
-                onClick={() =>
-                  setForm({
-                    ...form,
-                    fields: form.fields?.filter((ele) => ele.id !== field.id),
-                  })
-                }
-                className="px-4 py-1.5 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
-              >
-                Delete
-              </button>
-            </div>
-          ))}
-          <div className="mt-3 w-full flex flex-col items-start gap-1">
-            <label className="font-semibold">Add new field</label>
-
-            <div className="mt-1 w-full flex flex-row items-end gap-2">
-              <div className="w-full flex flex-col">
-                <span className="text-sm text-gray-600">label</span>
-                <input
-                  value={newField.label}
-                  onChange={(e) =>
-                    setNewField((newField) => {
-                      return { ...newField, label: e.target.value };
-                    })
-                  }
-                  className="flex-grow px-3 py-1.5 w-full rounded-md border-2 border-gray-200"
-                />
-              </div>
-
-              <div className="w-full flex flex-col">
-                <span className="text-sm text-gray-600">type</span>
-                <select
-                  value={newField.type}
-                  className="flex-grow px-3 py-1.5 w-full rounded-md border-2 border-gray-200"
-                  onChange={(e) => {
-                    setNewField((newField) => {
-                      return { ...newField, type: e.target.value };
                     });
                   }}
-                >
-                  {["text", "date"].map((val) => (
-                    <option value={val} key={val}>
-                      {val}
-                    </option>
-                  ))}
-                </select>
+                  deleteField={() => {
+                    setForm({
+                      ...form,
+                      fields: form.fields?.filter((ele) => ele.id !== field.id),
+                    });
+                  }}
+                />
               </div>
-
+            ))}
+          </div>
+          <div className="mt-3 w-full flex flex-col items-start gap-1">
+            <div className="w-full flex flex-row items-end justify-between gap-3 border-b-2 border-gray-300 pb-1">
+              <label className="font-semibold text-lg">Add new field</label>
               <button
                 onClick={() => {
                   if (newField.label.length > 0) {
                     setForm({
                       ...form,
-                      fields: [
-                        ...form.fields,
-                        {
-                          id: uniqueId(form.fields),
-                          label: newField.label,
-                          type: newField.type,
-                          value: "",
-                        },
-                      ],
+                      fields: [...form.fields, newField],
                     });
 
-                    setNewField({ label: "", type: "text" });
+                    setNewField({
+                      id: uniqueId(form?.fields ?? []),
+                      label: "",
+                      type: "text",
+                      value: "",
+                    });
                   }
                 }}
-                className="px-4 py-1.5 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
+                className="px-4 py-1.5 text-white font-semibold bg-green-600 hover:bg-green-700 rounded-lg"
               >
-                Add
+                Add Field
               </button>
             </div>
+            <EditField
+              field={newField}
+              setField={setNewField}
+              deleteField={null}
+            />
           </div>
-          <div className="flex flex-row items-center gap-5">
+          <div className="w-full flex flex-row items-center justify-end gap-5">
             <Link
               href={"/"}
-              className="mt-2 px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
+              className="mt-2 px-6 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
             >
-              Back
+              Close
             </Link>
           </div>
         </div>
