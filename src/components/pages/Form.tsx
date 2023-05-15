@@ -3,7 +3,6 @@ import { getForm, saveForm } from "../../utility/localStorageOperation";
 import { FormData } from "../data/interfaces";
 import { Link } from "raviger";
 import PreviewField from "../common/PreviewField";
-import { uniqueId } from "../../utility/uniqueId";
 
 export default function Form({ formId }: { formId: number }) {
   const [form, setForm] = useState<FormData | null>(() => getForm(formId));
