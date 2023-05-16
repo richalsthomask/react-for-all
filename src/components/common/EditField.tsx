@@ -1,6 +1,6 @@
 import { uniqueId } from "../../utility/uniqueId";
 import { fieldsOptions } from "../data/fieldsOptions";
-import { FieldData } from "../data/interfaces";
+import { FieldData } from "../interfaces/formData";
 
 export default function EditField({
   field,

@@ -53,7 +53,7 @@ export interface checkField {
 export interface FormData {
   id: number;
   label: string;
-  fields: FieldData[] | [];
+  fields: FieldData[] | any[];
 }
 
 export interface FormDataShort {

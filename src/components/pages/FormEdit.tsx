@@ -1,13 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "raviger";
 
 import { uniqueId } from "../../utility/uniqueId";
-import { getForm, saveForm } from "../../utility/localStorageOperation";
-import { FieldData, FormData } from "../data/interfaces";
+import { FieldData } from "../interfaces/formData";
 import EditField from "../common/EditField";
+import useFormStateReducer from "../stateManagement/formState";
 
 export default function FormEdit({ formId }: { formId: number }) {
-  const [form, setForm] = useState<FormData | null>(() => getForm(formId));
+  const { forms, dispatch } = useFormStateReducer();
+
+  let form = forms.find((ele) => ele.id === formId);
+
   const [newField, setNewField] = useState<FieldData>({
     id: uniqueId(form?.fields ?? []),
     label: "",
@@ -15,19 +18,7 @@ export default function FormEdit({ formId }: { formId: number }) {
     value: "",
   });
 
-  useEffect(() => {
-    if (form) saveForm(form);
-  }, [form]);
-
-  if (form === null)
-    return (
-      <div className="w-full flex-grow flex items-center justify-center">
-        <span className="text-gray-400 text-sm font-semibold">
-          No Form Found
-        </span>
-      </div>
-    );
-  else
+  if (form?.id)
     return (
       <div className="py-8 flex-grow w-full bg-gray-100 flex items-center justify-center">
         <div className="max-w-xl mx-auto px-6 pt-4 pb-8 rounded-lg bg-white shadow-lg flex flex-col gap-3 items-start">
@@ -44,18 +35,22 @@ export default function FormEdit({ formId }: { formId: number }) {
                   key={fieldIndex}
                   field={field}
                   setField={(value) => {
-                    setForm({
-                      ...form,
-                      fields: form.fields?.map((ele) =>
-                        ele.id === field.id ? value : ele
-                      ),
-                    });
+                    console.log(field);
+
+                    if (form)
+                      dispatch({
+                        type: "EDIT_FIELD",
+                        formId: form?.id,
+                        field: value,
+                      });
                   }}
                   deleteField={() => {
-                    setForm({
-                      ...form,
-                      fields: form.fields?.filter((ele) => ele.id !== field.id),
-                    });
+                    if (form)
+                      dispatch({
+                        type: "DELETE_FIELD",
+                        formId: form?.id,
+                        fieldId: field.id,
+                      });
                   }}
                 />
               </div>
@@ -66,10 +61,11 @@ export default function FormEdit({ formId }: { formId: number }) {
               <label className="font-semibold text-lg">Add new field</label>
               <button
                 onClick={() => {
-                  if (newField.label.length > 0) {
-                    setForm({
-                      ...form,
-                      fields: [...form.fields, newField],
+                  if (newField.label.length > 0 && form) {
+                    dispatch({
+                      type: "ADD_FIELD",
+                      formId: form.id,
+                      field: newField,
                     });
 
                     setNewField({
@@ -100,6 +96,14 @@ export default function FormEdit({ formId }: { formId: number }) {
             </Link>
           </div>
         </div>
+      </div>
+    );
+  else
+    return (
+      <div className="w-full flex-grow flex items-center justify-center">
+        <span className="text-gray-400 text-sm font-semibold">
+          No Form Found
+        </span>
       </div>
     );
 }

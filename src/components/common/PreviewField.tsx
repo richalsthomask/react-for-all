@@ -1,4 +1,4 @@
-import { FieldData } from "../data/interfaces";
+import { FieldData } from "../interfaces/formData";
 
 export default function PreviewField({
   field,

@@ -1,38 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "raviger";
 
-import {
-  deleteForm,
-  getForms,
-  saveForm,
-  saveForms,
-} from "../../utility/localStorageOperation";
-import { FormDataShort } from "../data/interfaces";
-import { uniqueId } from "../../utility/uniqueId";
+import { FormDataShort } from "../interfaces/formData";
+import useFormStateReducer from "../stateManagement/formState";
 
-export default function FormList({
-  searchString,
-  preview,
-}: {
-  searchString: string;
-  preview: boolean;
-}) {
-  const [forms, setForms] = useState<FormDataShort[] | null>(null);
+export default function FormList({ searchString }: { searchString: string }) {
+  const { forms, dispatch } = useFormStateReducer();
   const [formName, setFormName] = useState("");
-
-  useEffect(() => {
-    if (forms?.length) {
-      saveForms(forms);
-    }
-  }, [forms]);
-
-  useEffect(() => {
-    setForms(
-      getForms().filter((val: FormDataShort) =>
-        val.label.includes(searchString)
-      )
-    );
-  }, [searchString]);
 
   return (
     <div className="flex-grow w-full bg-gray-100">
@@ -48,48 +22,44 @@ export default function FormList({
           </div>
         )}
         <div className="mt-10 flex flex-row items-center justify-center flex-wrap gap-5 w-full h-full">
-          {forms?.map((form, formIndex) => (
-            <div
-              key={formIndex}
-              className="w-60 sm:w-80 h-40 bg-white rounded shadow-lg px-5 py-4 flex flex-col justify-center gap-2"
-            >
-              <label className="pt-4 w-full flex-grow text-lg font-semibold truncate">
-                {form.label}
-              </label>
+          {forms
+            ?.filter((val: FormDataShort) =>
+              searchString ? val.label.includes(searchString) : true
+            )
+            .map((form, formIndex) => (
+              <div
+                key={formIndex}
+                className="w-60 sm:w-80 h-40 bg-white rounded shadow-lg px-5 py-4 flex flex-col justify-center gap-2"
+              >
+                <label className="pt-4 w-full flex-grow text-lg font-semibold truncate">
+                  {form.label}
+                </label>
 
-              <div className="w-full flex flex-row items-center justify-end gap-2">
-                <Link
-                  href={"/preview/" + form.id}
-                  className="px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
-                >
-                  Open
-                </Link>
-                {!preview && (
+                <div className="w-full flex flex-row items-center justify-end gap-2">
+                  <Link
+                    href={"/preview/" + form.id}
+                    className="px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
+                  >
+                    Open
+                  </Link>
                   <Link
                     href={"/form/" + form.id}
                     className="px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
                   >
                     Edit
                   </Link>
-                )}
-                {!preview && (
                   <button
                     onClick={() => {
-                      saveForms(forms.filter((val) => val.id !== form.id));
-                      setForms((forms) =>
-                        forms ? forms.filter((val) => val.id !== form.id) : null
-                      );
-                      deleteForm(form.id);
+                      dispatch({ type: "DELETE_FORM", id: form.id });
                     }}
                     className="px-4 py-2 text-white font-semibold bg-red-500 hover:bg-red-600 rounded-lg"
                   >
                     Delete
                   </button>
-                )}
+                </div>
               </div>
-            </div>
-          ))}
-          {!preview && !searchString && (
+            ))}
+          {!searchString && (
             <div className="w-60 sm:w-80 h-40 bg-white rounded shadow-lg px-5 py-4 flex flex-col justify-center items-start gap-2">
               <label className="text-center w-full font-semibold">
                 Create new form
@@ -103,13 +73,8 @@ export default function FormList({
               <button
                 onClick={() => {
                   if (formName?.length > 0) {
-                    const newField = {
-                      id: uniqueId(forms ?? []),
-                      label: formName,
-                    };
-                    setForms((forms) => [...(forms ?? []), newField]);
+                    dispatch({ type: "ADD_FORM", label: formName });
                     setFormName("");
-                    saveForm({ ...newField, fields: [] });
                   }
                 }}
                 className="ml-auto px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
