@@ -16,6 +16,20 @@ export default function Form({ formId }: { formId: number }) {
       ? true
       : false;
 
+  const handleFieldChange = (
+    id: number,
+    field: "value" | "type",
+    value: string
+  ) => {
+    form?.fields &&
+      setForm({
+        ...form,
+        fields: form.fields.map((ele) =>
+          ele.id === id ? { ...ele, [field]: value } : ele
+        ),
+      });
+  };
+
   if (form === null)
     return (
       <div className="w-full flex-grow flex items-center justify-center">
@@ -47,14 +61,7 @@ export default function Form({ formId }: { formId: number }) {
                       value={field.value}
                       type={field.type}
                       onChange={(e) =>
-                        setForm({
-                          ...form,
-                          fields: form.fields?.map((ele) =>
-                            ele.id === field.id
-                              ? { ...ele, value: e.target.value }
-                              : ele
-                          ),
-                        })
+                        handleFieldChange(field.id, "value", e.target.value)
                       }
                       onKeyDown={(key) =>
                         key.key === "Enter" &&
@@ -91,15 +98,11 @@ export default function Form({ formId }: { formId: number }) {
             </Link>
             {allFieldsFilled && (
               <button
-                onClick={() => {
-                  setForm({
-                    ...form,
-                    fields: form.fields?.map((ele) => {
-                      return { ...ele, value: "" };
-                    }),
-                  });
-                  setCurrentField(0);
-                }}
+                onClick={() =>
+                  form.fields.map((field) =>
+                    handleFieldChange(field.id, "value", "")
+                  )
+                }
                 className="mt-2 px-4 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
               >
                 Clear data

@@ -16,6 +16,20 @@ export default function FormEdit({ formId }: { formId: number }) {
     if (form) saveForm(form);
   }, [form]);
 
+  const handleFieldChange = (
+    id: number,
+    field: "label" | "type",
+    value: string
+  ) => {
+    form?.fields &&
+      setForm({
+        ...form,
+        fields: form.fields.map((ele) =>
+          ele.id === id ? { ...ele, [field]: value } : ele
+        ),
+      });
+  };
+
   if (form === null)
     return (
       <div className="w-full flex-grow flex items-center justify-center">
@@ -41,14 +55,7 @@ export default function FormEdit({ formId }: { formId: number }) {
                 <input
                   value={field.label}
                   onChange={(e) =>
-                    setForm({
-                      ...form,
-                      fields: form.fields?.map((ele) =>
-                        ele.id === field.id
-                          ? { ...ele, label: e.target.value }
-                          : ele
-                      ),
-                    })
+                    handleFieldChange(field.id, "label", e.target.value)
                   }
                   className="flex-grow px-3 py-1.5 w-full rounded-md border-2 border-gray-200"
                 />
@@ -59,16 +66,9 @@ export default function FormEdit({ formId }: { formId: number }) {
                   <select
                     value={field.type}
                     className="flex-grow px-3 py-1.5 w-full rounded-md border-2 border-gray-200"
-                    onChange={(e) => {
-                      setForm({
-                        ...form,
-                        fields: form.fields?.map((ele) =>
-                          ele.id === field.id
-                            ? { ...ele, type: e.target.value }
-                            : ele
-                        ),
-                      });
-                    }}
+                    onChange={(e) =>
+                      handleFieldChange(field.id, "type", e.target.value)
+                    }
                   >
                     {["text", "date"].map((val) => (
                       <option value={val} key={val}>
