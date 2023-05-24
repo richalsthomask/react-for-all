@@ -12,8 +12,15 @@ export default function Form({ formId }: { formId: number }) {
     if (form) saveForm(form);
   }, [form]);
 
+  const usableFields = form?.fields?.filter(
+    (field) =>
+      field.label &&
+      (!(field.type === "radio" || field.type === "dropdown") ||
+        field.options?.find((option) => option.label))
+  );
+
   const allFieldsFilled =
-    form?.fields.length && form?.fields.length - 1 < currentField
+    usableFields?.length && usableFields.length - 1 < currentField
       ? true
       : false;
 
@@ -32,7 +39,10 @@ export default function Form({ formId }: { formId: number }) {
           <span className="text-xl text-center font-semibold">
             {form.label}
           </span>
-          {form?.fields?.map(
+          {usableFields?.length ? null : (
+            <span className="text-sm text-red-400">no fields to show</span>
+          )}
+          {usableFields?.map(
             (field, fieldIndex) =>
               (allFieldsFilled || fieldIndex === currentField) && (
                 <div className="w-full flex flex-row items-end gap-4">

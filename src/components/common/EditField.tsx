@@ -6,16 +6,25 @@ export default function EditField({
   field,
   setField,
   deleteField,
+  warning,
 }: {
   field: FieldData;
   setField: (field: FieldData) => void;
   deleteField: null | ((id: number) => void);
+  warning?: boolean;
 }) {
   return (
     <div className="py-4 w-full flex flex-col">
       <div className="w-full flex flex-row items-end gap-2">
         <div className="w-full flex flex-col">
-          <span className="text-sm text-gray-600 font-semibold">label</span>
+          <div className="w-full flex flex-row items-end justify-between gap-2">
+            <span className="text-sm text-gray-600 font-semibold">label</span>
+            {warning && (
+              <span className="text-xs text-red-600">
+                {field.label ? "" : "Fill this field"}
+              </span>
+            )}
+          </div>
           <input
             value={field.label}
             onChange={(e) => setField({ ...field, label: e.target.value })}
@@ -83,9 +92,20 @@ export default function EditField({
       </div>
       {(field.type === "radio" || field.type === "dropdown") && (
         <div className="flex flex-col mr-10">
-          <span className="mt-3 text-sm text-gray-600 font-semibold">
-            Options
-          </span>
+          <div className="w-full flex flex-row items-end justify-between gap-2">
+            <span className="mt-3 text-sm text-gray-600 font-semibold">
+              Options
+            </span>
+            {warning && (
+              <span className="sm:mr-10 text-xs text-red-600">
+                {field.options?.length > 0 &&
+                field.options.find((val) => val.label)
+                  ? ""
+                  : "Add atleast one non-empty option"}
+              </span>
+            )}
+          </div>
+
           {field.options?.map((option, optionIndex) => (
             <div className="mt-1 flex flex-row items-center gap-3">
               <span className="text-sm font-semibold text-gray-700">

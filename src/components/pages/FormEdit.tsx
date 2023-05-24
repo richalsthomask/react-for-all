@@ -19,6 +19,13 @@ export default function FormEdit({ formId }: { formId: number }) {
     if (form) saveForm(form);
   }, [form]);
 
+  const errorFields = form?.fields?.filter(
+    (field) =>
+      !field.label ||
+      ((field.type === "radio" || field.type === "dropdown") &&
+        !field.options?.find((option) => option.label))
+  );
+
   if (form === null)
     return (
       <div className="w-full flex-grow flex items-center justify-center">
@@ -31,9 +38,19 @@ export default function FormEdit({ formId }: { formId: number }) {
     return (
       <div className="py-8 flex-grow w-full bg-gray-100 flex items-center justify-center">
         <div className="max-w-xl mx-auto px-6 pt-4 pb-8 rounded-lg bg-white shadow-lg flex flex-col gap-3 items-start">
-          <span className="text-xl text-center font-semibold">
-            {form.label}
-          </span>
+          <div className="flex flex-row items-center gap-3 justify-between w-full">
+            <span className="text-xl text-center font-semibold">
+              {form.label}
+            </span>
+            {errorFields?.length && errorFields?.length > 0 ? (
+              <span className="text-sm text-red-400">
+                * Input fields with unresolved errors will not be shown on
+                preview
+              </span>
+            ) : (
+              <></>
+            )}
+          </div>
           <div className="flex flex-col gap-3 divide-y divide-gray-300">
             {form?.fields?.map((field, fieldIndex) => (
               <div className="flex flex-row items-start gap-3">
@@ -41,6 +58,7 @@ export default function FormEdit({ formId }: { formId: number }) {
                   {fieldIndex + 1}.
                 </span>
                 <EditField
+                  warning={true}
                   key={fieldIndex}
                   field={field}
                   setField={(value) => {
@@ -66,19 +84,17 @@ export default function FormEdit({ formId }: { formId: number }) {
               <label className="font-semibold text-lg">Add new field</label>
               <button
                 onClick={() => {
-                  if (newField.label.length > 0) {
-                    setForm({
-                      ...form,
-                      fields: [...form.fields, newField],
-                    });
+                  setForm({
+                    ...form,
+                    fields: [...form.fields, newField],
+                  });
 
-                    setNewField({
-                      id: uniqueId(form?.fields ?? []),
-                      label: "",
-                      type: "text",
-                      value: "",
-                    });
-                  }
+                  setNewField({
+                    id: uniqueId(form?.fields ?? []),
+                    label: "",
+                    type: "text",
+                    value: "",
+                  });
                 }}
                 className="px-4 py-1.5 text-white font-semibold bg-green-600 hover:bg-green-700 rounded-lg"
               >
