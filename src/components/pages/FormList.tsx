@@ -7,6 +7,7 @@ import useUserAction from "../actions/userActions";
 import { FormResponse } from "../interfaces/apiResponses";
 import DeleteFormPopup from "../common/DeleteFormPopup";
 import Paginator from "../common/Paginater";
+import { toast } from "react-toastify";
 
 export default function FormList({
   searchString = "",
@@ -28,11 +29,11 @@ export default function FormList({
     title: "",
     show: false,
   });
-  const { handleError } = useUserAction();
+  const { logout } = useUserAction();
 
   const fetchForms = useCallback(() => {
     setLoading(true);
-    getForms(page)
+    getForms({ offset: page.offset, limit: page.limit })
       .then((res) => {
         setLoading(false);
         console.log(res);
@@ -46,11 +47,13 @@ export default function FormList({
           };
         });
       })
-      .catch((err) => {
+      .catch((error) => {
         setLoading(false);
-        handleError(err);
+        console.log({ error });
+        if (error?.detail === "Invalid token.") logout();
+        toast.error(error?.message ?? "Error Occured During Network Call");
       });
-  }, [page, handleError]);
+  }, [page.limit, page.offset, logout]);
 
   useEffect(() => {
     fetchForms();

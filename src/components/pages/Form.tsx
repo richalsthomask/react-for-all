@@ -13,7 +13,7 @@ import useUserAction from "../actions/userActions";
 import { toast } from "react-toastify";
 
 export default function Form({ formId }: { formId: number }) {
-  const { handleError } = useUserAction();
+  const { logout } = useUserAction();
   const [currentField, setCurrentField] = useState(0);
   const [form, setForm] = useState<FormResponse>();
   const [fields, setFields] = useState<FieldResponse[]>();
@@ -51,10 +51,11 @@ export default function Form({ formId }: { formId: number }) {
       })
       .catch((err) => {
         setLoading(false);
-        handleError(err);
+        if (err?.detail === "Invalid token.") logout();
+        toast.error(err?.message ?? "Error Occured During Network Call");
         console.log(err);
       });
-  }, [formId, handleError]);
+  }, [formId, logout]);
 
   const fetchForm = useCallback(() => {
     setLoading(true);
@@ -67,10 +68,11 @@ export default function Form({ formId }: { formId: number }) {
       })
       .catch((err) => {
         setLoading(false);
-        handleError(err);
+        if (err?.detail === "Invalid token.") logout();
+        toast.error(err?.message ?? "Error Occured During Network Call");
         console.log(err);
       });
-  }, [formId, fetchFields, handleError]);
+  }, [formId, fetchFields, logout]);
 
   useEffect(() => {
     fetchForm();
