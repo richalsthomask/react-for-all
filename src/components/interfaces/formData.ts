@@ -1,53 +1,23 @@
-export type FieldData =
-  | textField
-  | dateField
-  | timeField
-  | dropdownField
-  | radioField
-  | checkField;
+export type FieldData = textField | dropdownField | radioField;
 
 export interface textField {
-  id: number;
-  type: "text";
-  label: string;
-  value: string;
-}
-
-export interface dateField {
-  id: number;
-  type: "date";
-  label: string;
-  value: string;
-}
-
-export interface timeField {
-  id: number;
-  type: "time";
+  kind: "TEXT";
   label: string;
   value: string;
 }
 
 export interface dropdownField {
-  id: number;
-  type: "dropdown";
+  kind: "DROPDOWN";
   label: string;
   value: number[] | never[];
   options: { id: number; label: string }[] | never[];
 }
 
 export interface radioField {
-  id: number;
-  type: "radio";
+  kind: "RADIO";
   label: string;
   value: number | undefined;
   options: { id: number; label: string }[] | never[];
-}
-
-export interface checkField {
-  id: number;
-  type: "checkbox";
-  label: string;
-  value: boolean;
 }
 
 export interface FormData {

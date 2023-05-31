@@ -1,32 +1,186 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "raviger";
 
-import { uniqueId } from "../../utility/uniqueId";
-import { FieldData } from "../interfaces/formData";
 import EditField from "../common/EditField";
-import useFormStateReducer from "../stateManagement/formState";
+import {
+  deleteField,
+  getFields,
+  getForm,
+  patchField,
+  postField,
+} from "../common/api";
+import useUserAction from "../actions/userActions";
+import { FieldResponse, FormResponse } from "../interfaces/apiResponses";
+import { LoadingIcon } from "../common/svg";
+import { toast } from "react-toastify";
 
 export default function FormEdit({ formId }: { formId: number }) {
-  const { forms, dispatch } = useFormStateReducer();
-
-  let form = forms.find((ele) => ele.id === formId);
-
-  const [newField, setNewField] = useState<FieldData>({
-    id: uniqueId(form?.fields ?? []),
+  const { handleError } = useUserAction();
+  const [form, setForm] = useState<FormResponse>();
+  const [fields, setFields] = useState<FieldResponse[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingSave, setLoadingSave] = useState(false);
+  const [newField, setNewField] = useState<FieldResponse>({
+    id: 0,
     label: "",
-    type: "text",
+    kind: "TEXT",
     value: "",
   });
 
-  if (form?.id)
+  const fetchFields = useCallback(() => {
+    setLoading(true);
+    getFields({ id: formId })
+      .then((res) => {
+        setFields(res.results);
+        setLoading(false);
+        console.log(res);
+      })
+      .catch((err) => {
+        setLoading(false);
+        handleError(err);
+        console.log(err);
+      });
+  }, [formId, handleError]);
+
+  const fetchForm = useCallback(() => {
+    setLoading(true);
+    getForm({ formId })
+      .then((res) => {
+        setLoading(false);
+        setForm(res);
+        fetchFields();
+        console.log(res);
+      })
+      .catch((err) => {
+        setLoading(false);
+        handleError(err);
+        console.log(err);
+      });
+  }, [formId, fetchFields, handleError]);
+
+  useEffect(() => {
+    fetchForm();
+  }, [formId, fetchForm]);
+
+  const createField = () => {
+    if (!newField.label || !newField.kind) return;
+    setLoadingSave(true);
+    postField({
+      id: formId,
+      body: {
+        ...newField,
+        value:
+          newField.kind !== "TEXT"
+            ? JSON.stringify(newField.value)
+            : newField.value,
+      },
+    })
+      .then((res) => {
+        console.log(res);
+        setLoadingSave(false);
+        fetchFields();
+        setNewField({
+          id: 0,
+          label: "",
+          kind: "TEXT",
+          value: "",
+        });
+        toast.success("Field created successfully");
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoadingSave(false);
+        handleError(err);
+      });
+  };
+
+  const deleteFieldapi = (id: number) => {
+    setLoadingSave(true);
+    deleteField({ formId, fieldId: id })
+      .then((res) => {
+        console.log(res);
+        setLoadingSave(false);
+        fetchFields();
+        toast.success("Field deleted successfully");
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoadingSave(false);
+        handleError(err);
+      });
+  };
+
+  const updateFields = () => {
+    let savedFields = 0;
+
+    fields?.length > 0 && setLoadingSave(true);
+    fields?.map((field) => {
+      patchField({
+        formId,
+        fieldId: field.id,
+        body: field,
+      })
+        .then((res) => {
+          savedFields++;
+          if (savedFields === fields.length) {
+            setLoadingSave(false);
+            fetchFields();
+            toast.success("Fields updated successfully");
+          }
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+          savedFields++;
+          if (savedFields === fields.length) setLoadingSave(false);
+          handleError(err);
+        });
+      return true;
+    });
+  };
+
+  if (loading)
     return (
       <div className="py-8 flex-grow w-full bg-gray-100 flex items-center justify-center">
         <div className="max-w-xl mx-auto px-6 pt-4 pb-8 rounded-lg bg-white shadow-lg flex flex-col gap-3 items-start">
-          <span className="text-xl text-center font-semibold">
-            {form.label}
-          </span>
-          <div className="flex flex-col gap-3 divide-y divide-gray-300">
-            {form?.fields?.map((field, fieldIndex) => (
+          <span className="text-xl text-center font-semibold">Loading...</span>
+        </div>
+      </div>
+    );
+  else if (form?.id)
+    return (
+      <div className="py-8 flex-grow w-full bg-gray-100 flex items-center justify-center">
+        <div className="max-w-xl mx-auto px-6 pt-4 pb-8 rounded-lg bg-white shadow-lg flex flex-col gap-1 items-start">
+          <div className="flex flex-row items-center justify-between w-full flex-wrap">
+            <span className="text-xl text-center font-semibold">
+              {form.title}
+            </span>
+            <div className="flex flex-row items-center justify-end gap-3">
+              <button
+                onClick={() => {
+                  updateFields();
+                }}
+                className="h-8 w-20 flex items-center justify-center text-white font-semibold bg-green-600 hover:bg-green-700 rounded-lg"
+              >
+                {loadingSave ? (
+                  <LoadingIcon style={{ height: "18px" }} />
+                ) : (
+                  "Save"
+                )}
+              </button>
+              <Link
+                href={"/"}
+                className="px-5 py-1 text-white font-semibold rounded-lg bg-red-500 hover:bg-red-600"
+              >
+                Close
+              </Link>
+            </div>
+          </div>
+
+          <span className="text-sm text-gray-500">{form.description}</span>
+
+          <div className="mt-3 flex flex-col gap-3 divide-y divide-gray-300">
+            {fields?.map((field, fieldIndex) => (
               <div className="flex flex-row items-start gap-3">
                 <span className="mt-11 font-semibold text-gray-700">
                   {fieldIndex + 1}.
@@ -35,22 +189,15 @@ export default function FormEdit({ formId }: { formId: number }) {
                   key={fieldIndex}
                   field={field}
                   setField={(value) => {
-                    console.log(field);
-
-                    if (form)
-                      dispatch({
-                        type: "EDIT_FIELD",
-                        formId: form?.id,
-                        field: value,
-                      });
+                    setFields(
+                      fields?.map((f) => {
+                        if (f.id === field.id) return value;
+                        else return f;
+                      })
+                    );
                   }}
                   deleteField={() => {
-                    if (form)
-                      dispatch({
-                        type: "DELETE_FIELD",
-                        formId: form?.id,
-                        fieldId: field.id,
-                      });
+                    deleteFieldapi(field.id);
                   }}
                 />
               </div>
@@ -60,22 +207,7 @@ export default function FormEdit({ formId }: { formId: number }) {
             <div className="w-full flex flex-row items-end justify-between gap-3 border-b-2 border-gray-300 pb-1">
               <label className="font-semibold text-lg">Add new field</label>
               <button
-                onClick={() => {
-                  if (newField.label.length > 0 && form) {
-                    dispatch({
-                      type: "ADD_FIELD",
-                      formId: form.id,
-                      field: newField,
-                    });
-
-                    setNewField({
-                      id: uniqueId(form?.fields ?? []),
-                      label: "",
-                      type: "text",
-                      value: "",
-                    });
-                  }
-                }}
+                onClick={createField}
                 className="px-4 py-1.5 text-white font-semibold bg-green-600 hover:bg-green-700 rounded-lg"
               >
                 Add Field
@@ -86,14 +218,6 @@ export default function FormEdit({ formId }: { formId: number }) {
               setField={setNewField}
               deleteField={null}
             />
-          </div>
-          <div className="w-full flex flex-row items-center justify-end gap-5">
-            <Link
-              href={"/"}
-              className="mt-2 px-6 py-2 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
-            >
-              Close
-            </Link>
           </div>
         </div>
       </div>

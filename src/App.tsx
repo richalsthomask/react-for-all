@@ -1,25 +1,23 @@
-import { useRoutes } from "raviger";
-import BaseWrapper from "./components/common/BaseWrapper";
-import FormList from "./components/pages/FormList";
-import Form from "./components/pages/Form";
-import FormEdit from "./components/pages/FormEdit";
-import FormListPreview from "./components/pages/FormListPreview";
+import { RecoilRoot } from "recoil";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const routes = {
-  "/": () => <FormList searchString="" />,
-  "/preview": () => <FormListPreview />,
-  "/preview/:formId": ({ formId }: { formId: string }) => (
-    <Form formId={parseFloat(formId)} />
-  ),
-  "/:search": ({ search }: { search: string }) => (
-    <FormList searchString={search} />
-  ),
-  "/form/:formId": ({ formId }: { formId: string }) => (
-    <FormEdit formId={parseFloat(formId)} />
-  ),
-};
+import Router from "./router/Router";
 
 export default function App() {
-  let route = useRoutes(routes);
-  return <BaseWrapper>{route}</BaseWrapper>;
+  return (
+    <RecoilRoot>
+      <Router />
+      <ToastContainer
+        position="bottom-center"
+        autoClose={5000}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+    </RecoilRoot>
+  );
 }

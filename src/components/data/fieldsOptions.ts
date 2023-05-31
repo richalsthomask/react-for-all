@@ -1,29 +1,18 @@
 export const fieldsOptions: {
   label: string;
-  value: "text" | "date" | "time" | "dropdown" | "radio" | "checkbox";
+  value: "TEXT" | "DROPDOWN" | "RADIO";
 }[] = [
   {
     label: "Text",
-    value: "text",
+    value: "TEXT",
   },
-  {
-    label: "Date",
-    value: "date",
-  },
-  {
-    label: "Time",
-    value: "time",
-  },
+
   {
     label: "Multi-Select Dropdown",
-    value: "dropdown",
+    value: "DROPDOWN",
   },
   {
     label: "Radio",
-    value: "radio",
-  },
-  {
-    label: "Checkbox",
-    value: "checkbox",
+    value: "RADIO",
   },
 ];

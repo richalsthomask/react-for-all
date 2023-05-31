@@ -1,38 +1,25 @@
-import { FieldData } from "../interfaces/formData";
+import { FieldResponse } from "../interfaces/apiResponses";
 
 export default function PreviewField({
   field,
   setValue,
 }: {
-  field: FieldData;
-  setValue: (value: FieldData) => void;
+  field: FieldResponse;
+  setValue: (value: FieldResponse) => void;
 }) {
   return (
     <div className="w-full flex flex-col gap-1">
       <span className="font-semibold text-gray-600">{field.label}</span>
-      {field.type === "text" ||
-      field.type === "date" ||
-      field.type === "time" ? (
+      {field.kind === "TEXT" ? (
         <input
-          type={field.type}
+          type="text"
           value={field.value}
           onChange={(e) => {
             setValue({ ...field, value: e.target.value });
           }}
           className="w-full rounded-md border-2 border-gray-200 px-2 py-1.5"
         />
-      ) : field.type === "checkbox" ? (
-        <div className="w-full">
-          <input
-            type={field.type}
-            checked={field.value}
-            onChange={() =>
-              setValue({ ...field, value: field.value ? false : true })
-            }
-            className="mt-2 rounded-md border-2 border-gray-200 h-5 w-5"
-          />
-        </div>
-      ) : field.type === "radio" ? (
+      ) : field.kind === "RADIO" ? (
         <div className="w-full flex flex-row items-center gap-3 flex-wrap">
           {field.options.map((option, optionIndex) => (
             <div key={optionIndex} className="flex flex-row items-center gap-2">
@@ -47,7 +34,7 @@ export default function PreviewField({
             </div>
           ))}
         </div>
-      ) : field.type === "dropdown" ? (
+      ) : field.kind === "DROPDOWN" ? (
         <div className="">
           <select
             value={""}
@@ -75,7 +62,7 @@ export default function PreviewField({
           <div className="mt-3 bg-yellow-100 px-4 py-3 rounded-md">
             <span className="text-gray-600 text-sm mb-2">Selected options</span>
             <div className="mt-1 flex flex-row items-center gap-3 flex-wrap">
-              {field.value.map((option, optionIndex) => (
+              {field.value?.map((option, optionIndex) => (
                 <div
                   key={optionIndex}
                   className="px-4 py-1.5 rounded-full bg-gray-600 text-white text-sm font-semibold"
