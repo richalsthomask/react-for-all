@@ -20,20 +20,6 @@ export default function CreateFormPopup({
   const { handleError } = useUserAction();
 
   const createForm = () => {
-    if (formName === "") {
-      setWarning({
-        ...warning,
-        title: "Form name cannot be empty",
-      });
-      return;
-    }
-    if (formDescription === "") {
-      setWarning({
-        ...warning,
-        description: "Form description cannot be empty",
-      });
-      return;
-    }
     setLoading(true);
     postForm({
       title: formName,
@@ -51,6 +37,10 @@ export default function CreateFormPopup({
       })
       .catch((err) => {
         setLoading(false);
+        setWarning({
+          title: err.title ? err.title[0] : "",
+          description: err.description ? err.description[0] : "",
+        });
         handleError(err);
       });
   };

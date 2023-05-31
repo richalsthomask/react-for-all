@@ -81,7 +81,6 @@ export default function FormList({
             <div className="mt-10 flex flex-row items-center justify-center flex-wrap gap-5 w-full h-full">
               {forms
                 ?.filter((val: FormResponse) => {
-                  console.log(val.title, searchString);
                   return searchString ? val.title.includes(searchString) : true;
                 })
                 .map((form: FormResponse, formIndex) => (

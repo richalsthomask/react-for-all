@@ -38,7 +38,7 @@ export const request = async (url: string, method = "GET", body?: object) => {
         })
         .catch((e) => {
           console.log(e);
-          return { message: "Success" };
+          return Promise.reject(e);
         });
     });
   } catch (e) {

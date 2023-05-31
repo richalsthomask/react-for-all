@@ -1,6 +1,8 @@
-import { Link } from "raviger";
+import { Link, navigate } from "raviger";
 import { useState } from "react";
 import useUserAction from "../actions/userActions";
+import { LoginResponse } from "../interfaces/apiResponses";
+import { register } from "../common/api";
 
 export default function Register() {
   const [userData, setUserData] = useState({
@@ -15,9 +17,9 @@ export default function Register() {
     password: "",
   });
   const [loading, setLoading] = useState(false);
-  const { registerUser } = useUserAction();
+  const { handleError } = useUserAction();
 
-  const userRegister = async () => {
+  const userRegister = () => {
     if (
       !userData.username ||
       !userData.password ||
@@ -34,11 +36,37 @@ export default function Register() {
       });
       return;
     }
+    if (userData.username?.length > 150) {
+      setWarning({
+        username: "Username must be less than 150 characters",
+        password: "",
+        email: "",
+      });
+      return;
+    }
     setLoading(true);
+
     const { username, email, password, confirmPassword } = userData;
-    setLoading(
-      await registerUser({ username, email, password, confirmPassword })
-    );
+
+    register({ username, email, password, confirmPassword })
+      .then((res: LoginResponse) => {
+        console.log({ res });
+        navigate("/login");
+        setLoading(false);
+      })
+      .catch((res) => {
+        handleError(res);
+        setLoading(false);
+        setWarning({
+          username: res.username ? res.username[0] : "",
+          password: res.password
+            ? res.password[0]
+            : res.password1
+            ? res.password1[0]
+            : "",
+          email: res.email ? res.email[0] : "",
+        });
+      });
   };
 
   return (

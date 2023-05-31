@@ -1,14 +1,38 @@
 import { useState } from "react";
 import { uniqueId } from "../../utility/uniqueId";
-import { fieldsOptions } from "../data/fieldsOptions";
 import { FieldResponse } from "../interfaces/apiResponses";
+
+const fieldsOptions: {
+  label: string;
+  value: "TEXT" | "DROPDOWN" | "RADIO";
+}[] = [
+  {
+    label: "Text",
+    value: "TEXT",
+  },
+
+  {
+    label: "Multi-Select Dropdown",
+    value: "DROPDOWN",
+  },
+  {
+    label: "Radio",
+    value: "RADIO",
+  },
+];
 
 export default function EditField({
   field,
+  warning,
   setField,
   deleteField,
 }: {
   field: FieldResponse;
+  warning: {
+    label: string;
+    kind: string;
+    options: string;
+  };
   setField: (field: FieldResponse) => void;
   deleteField: null | (() => void);
 }) {
@@ -17,7 +41,12 @@ export default function EditField({
     <div className="py-4 w-full flex flex-col">
       <div className="w-full flex flex-row items-end gap-2">
         <div className="w-full flex flex-col">
-          <span className="text-sm text-gray-600 font-semibold">label</span>
+          <div className="flex flex-row items-center justify-between gap-2">
+            <span className="text-sm text-gray-600 font-semibold">label</span>
+            {warning.label && (
+              <span className="text-xs text-red-600">{warning.label}</span>
+            )}
+          </div>
           <input
             value={field.label}
             onChange={(e) => setField({ ...field, label: e.target.value })}
@@ -26,7 +55,12 @@ export default function EditField({
         </div>
         <div className="w-full flex flex-row items-center gap-2">
           <div className="w-full flex flex-col">
-            <span className="text-sm text-gray-600 font-semibold">type</span>
+            <div className="flex flex-row items-center justify-between gap-2">
+              <span className="text-sm text-gray-600 font-semibold">type</span>
+              {warning.kind && (
+                <span className="text-xs text-red-600">{warning.kind}</span>
+              )}
+            </div>
             <select
               value={field.kind}
               onChange={(e) => {
@@ -55,7 +89,7 @@ export default function EditField({
                     : field
                 );
               }}
-              className="flex-grow px-3 py-1.5 w-full rounded-md border-2 border-gray-200"
+              className="flex-grow px-3 py-2 w-full rounded-md border-2 border-gray-200"
             >
               {fieldsOptions.map((val, index) => (
                 <option value={val.value} key={index}>
@@ -77,9 +111,14 @@ export default function EditField({
       </div>
       {(field.kind === "RADIO" || field.kind === "DROPDOWN") && (
         <div className="flex flex-col mr-10">
-          <span className="mt-3 text-sm text-gray-600 font-semibold">
-            Options
-          </span>
+          <div className="flex flex-row items-center justify-between gap-2">
+            <span className="ml-6 mt-3 text-sm text-gray-600 font-semibold">
+              Options
+            </span>
+            {warning.options && (
+              <span className="text-xs text-red-600">{warning.options}</span>
+            )}
+          </div>
           {field.options?.map((option, optionIndex) => (
             <div className="mt-1 flex flex-row items-center gap-3">
               <span className="text-sm font-semibold text-gray-700">

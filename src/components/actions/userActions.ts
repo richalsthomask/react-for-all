@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 
 import { userAtom } from "../../store/userAtom";
 import { navigate } from "raviger";
-import { login, register } from "../common/api";
+import { login } from "../common/api";
 import { LoginResponse } from "../interfaces/apiResponses";
 import { useCallback } from "react";
 
@@ -64,28 +64,5 @@ export default function useUserAction() {
       });
   };
 
-  const registerUser = async ({
-    username,
-    email,
-    password,
-    confirmPassword,
-  }: {
-    username: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
-  }) => {
-    return register({ username, email, password, confirmPassword })
-      .then((res: LoginResponse) => {
-        console.log({ res });
-        navigate("/login");
-        return false;
-      })
-      .catch((res) => {
-        handleError(res);
-        return false;
-      });
-  };
-
-  return { checkUser, logout, loginUser, registerUser, handleError };
+  return { checkUser, logout, loginUser, handleError };
 }

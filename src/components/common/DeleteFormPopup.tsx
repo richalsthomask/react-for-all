@@ -24,6 +24,11 @@ export default function DeleteForm({
         closePopup();
       })
       .catch((err) => {
+        console.log({ err });
+        if (err?.message === "Unexpected end of JSON input") {
+          setLoading(false);
+          closePopup();
+        }
         setLoading(false);
         handleError(err);
       });

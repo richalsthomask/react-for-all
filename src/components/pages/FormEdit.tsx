@@ -26,6 +26,11 @@ export default function FormEdit({ formId }: { formId: number }) {
     kind: "TEXT",
     value: "",
   });
+  const [warning, setWarning] = useState({
+    label: "",
+    kind: "",
+    options: "",
+  });
 
   const fetchFields = useCallback(() => {
     setLoading(true);
@@ -65,7 +70,6 @@ export default function FormEdit({ formId }: { formId: number }) {
   }, [formId, fetchForm]);
 
   const createField = () => {
-    if (!newField.label || !newField.kind) return;
     setLoadingSave(true);
     postField({
       id: formId,
@@ -93,6 +97,11 @@ export default function FormEdit({ formId }: { formId: number }) {
         console.log(err);
         setLoadingSave(false);
         handleError(err);
+        setWarning({
+          label: err?.label?.[0] ?? "",
+          kind: err?.kind?.[0] ?? "",
+          options: err?.options?.[0] ?? "",
+        });
       });
   };
 
@@ -188,6 +197,11 @@ export default function FormEdit({ formId }: { formId: number }) {
                   {fieldIndex + 1}.
                 </span>
                 <EditField
+                  warning={{
+                    label: "",
+                    kind: "",
+                    options: "",
+                  }}
                   key={fieldIndex}
                   field={field}
                   setField={(value) => {
@@ -216,6 +230,7 @@ export default function FormEdit({ formId }: { formId: number }) {
               </button>
             </div>
             <EditField
+              warning={warning}
               field={newField}
               setField={setNewField}
               deleteField={null}
