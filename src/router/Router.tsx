@@ -6,15 +6,14 @@ import PrivateRouter from "./PrivateRouter";
 import PublicRouter from "./PublicRouter";
 import { userAtom } from "../store/userAtom";
 import useUserAction from "../components/actions/userActions";
-import { toast } from "react-toastify";
 
-export default function Router({}) {
+export default function Router() {
   const [user] = useRecoilState(userAtom);
   const { checkUser } = useUserAction();
 
   useEffect(() => {
     checkUser();
-  }, []);
+  }, [checkUser]);
 
   return (
     <BaseWrapper>

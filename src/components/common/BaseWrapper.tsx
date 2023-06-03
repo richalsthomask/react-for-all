@@ -1,5 +1,5 @@
 import { Link, navigate } from "raviger";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRecoilState } from "recoil";
 
 import { userAtom } from "../../store/userAtom";
@@ -10,6 +10,13 @@ export default function BaseWrapper({ children }: { children: JSX.Element }) {
   const { logout } = useUserAction();
   const [searchString, setSearchString] = useState("");
   const [logoutPopup, setLogoutPopup] = useState(false);
+  const firstRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (firstRef.current && logoutPopup) {
+      firstRef.current.focus();
+    }
+  }, [logoutPopup]);
 
   return (
     <div className="w-full flex flex-col min-h-screen">
@@ -17,13 +24,13 @@ export default function BaseWrapper({ children }: { children: JSX.Element }) {
         <div className="text-white mx-auto max-w-6xl flex flex-row justify-between items-center gap-8">
           <div className="flex flex-row items-center gap-8">
             {user.status === "loggedIn" && (
-              <button className="text-white hover:text-gray-300 transform hover:scale-105 duration-300">
+              <div className="text-white hover:text-gray-300 transform hover:scale-105 duration-300">
                 <Link href="/">Home</Link>
-              </button>
+              </div>
             )}
-            <button className="text-white hover:text-gray-300 transform hover:scale-105 duration-300">
+            <div className="text-white hover:text-gray-300 transform hover:scale-105 duration-300">
               <Link href="/preview">Preview</Link>
-            </button>
+            </div>
           </div>
           <div className="flex flex-row items-center gap-9">
             {user.status === "loggedIn" ? (
@@ -89,6 +96,7 @@ export default function BaseWrapper({ children }: { children: JSX.Element }) {
             <div className="text-lg mb-4">Are you sure you want to logout?</div>
             <div className="w-full flex flex-row justify-end gap-2">
               <button
+                ref={firstRef}
                 onClick={() => {
                   logout();
                   setLogoutPopup(false);
@@ -100,6 +108,9 @@ export default function BaseWrapper({ children }: { children: JSX.Element }) {
               <button
                 onClick={() => {
                   setLogoutPopup(false);
+                }}
+                onBlur={() => {
+                  firstRef?.current?.focus();
                 }}
                 className="px-6 py-1.5 text-white font-semibold bg-red-500 hover:bg-red-600 rounded-lg"
               >

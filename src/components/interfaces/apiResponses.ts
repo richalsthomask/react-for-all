@@ -26,7 +26,8 @@ export type DropdownRadioOptions = {
 export type FieldResponse =
   | TextFieldsResponse
   | DropdownFieldsResponse
-  | RadioResponse;
+  | RadioResponse
+  | dateFieldResponse;
 
 export type TextFieldsResponse = {
   id: number;
@@ -34,6 +35,13 @@ export type TextFieldsResponse = {
   kind: "TEXT";
   value: string;
 };
+
+export interface dateFieldResponse {
+  id: number;
+  kind: "DATE";
+  label: string;
+  value: string;
+}
 
 export type DropdownFieldsResponse = {
   id: number;

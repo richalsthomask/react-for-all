@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { postForm } from "./api";
 import useUserAction from "../actions/userActions";
@@ -18,6 +18,13 @@ export default function CreateFormPopup({
   });
   const [loading, setLoading] = useState(false);
   const { handleError } = useUserAction();
+  const firstRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (firstRef.current) {
+      firstRef.current.focus();
+    }
+  }, []);
 
   const createForm = () => {
     setLoading(true);
@@ -84,6 +91,7 @@ export default function CreateFormPopup({
                 <span className="text-xs text-red-500">{warning.title}</span>
               </div>
               <input
+                ref={firstRef}
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 className="w-full px-3 py-1.5 rounded-md border border-gray-200"
@@ -121,6 +129,9 @@ export default function CreateFormPopup({
                 </button>
                 <button
                   type="submit"
+                  onBlur={() => {
+                    firstRef?.current?.focus();
+                  }}
                   className="px-6 py-1.5 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
                 >
                   Create

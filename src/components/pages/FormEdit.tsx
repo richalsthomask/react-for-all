@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "raviger";
+import { Draggable } from "react-drag-reorder";
 
 import EditField from "../common/EditField";
 import {
@@ -115,9 +116,15 @@ export default function FormEdit({ formId }: { formId: number }) {
         toast.success("Field deleted successfully");
       })
       .catch((err) => {
-        console.log(err);
-        setLoadingSave(false);
-        handleError(err);
+        if (err?.message === "Unexpected end of JSON input") {
+          setLoadingSave(false);
+          fetchFields();
+          toast.success("Field deleted successfully");
+        } else {
+          console.log(err);
+          setLoadingSave(false);
+          handleError(err);
+        }
       });
   };
 
@@ -191,33 +198,49 @@ export default function FormEdit({ formId }: { formId: number }) {
           <span className="text-sm text-gray-500">{form.description}</span>
 
           <div className="mt-3 flex flex-col gap-3 divide-y divide-gray-300">
-            {fields?.map((field, fieldIndex) => (
-              <div className="flex flex-row items-start gap-3">
-                <span className="mt-11 font-semibold text-gray-700">
-                  {fieldIndex + 1}.
-                </span>
-                <EditField
-                  warning={{
-                    label: "",
-                    kind: "",
-                    options: "",
-                  }}
+            <Draggable
+              onPosChange={(currentPos, newPos) => {
+                var element = fields[currentPos];
+                let tempFields = fields;
+                tempFields.splice(currentPos, 1);
+                tempFields.splice(newPos, 0, element);
+
+                setTimeout(() => {
+                  setFields(tempFields);
+                }, 100);
+              }}
+            >
+              {fields?.map((field, fieldIndex) => (
+                <div
                   key={fieldIndex}
-                  field={field}
-                  setField={(value) => {
-                    setFields(
-                      fields?.map((f) => {
-                        if (f.id === field.id) return value;
-                        else return f;
-                      })
-                    );
-                  }}
-                  deleteField={() => {
-                    deleteFieldapi(field.id);
-                  }}
-                />
-              </div>
-            ))}
+                  className="flex flex-row items-start gap-3"
+                >
+                  <span className="mt-11 font-semibold text-gray-700">
+                    {fieldIndex + 1}.
+                  </span>
+                  <EditField
+                    warning={{
+                      label: "",
+                      kind: "",
+                      options: "",
+                    }}
+                    key={fieldIndex}
+                    field={field}
+                    setField={(value) => {
+                      setFields(
+                        fields?.map((f) => {
+                          if (f.id === field.id) return value;
+                          else return f;
+                        })
+                      );
+                    }}
+                    deleteField={() => {
+                      deleteFieldapi(field.id);
+                    }}
+                  />
+                </div>
+              ))}
+            </Draggable>
           </div>
           <div className="mt-3 w-full flex flex-col items-start gap-1">
             <div className="w-full flex flex-row items-end justify-between gap-3 border-b-2 border-gray-300 pb-1">

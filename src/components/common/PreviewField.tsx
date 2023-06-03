@@ -1,4 +1,7 @@
 import { FieldResponse } from "../interfaces/apiResponses";
+import DatePicker from "react-date-picker";
+import "react-date-picker/dist/DatePicker.css";
+import "react-calendar/dist/Calendar.css";
 
 export default function PreviewField({
   field,
@@ -34,6 +37,13 @@ export default function PreviewField({
             </div>
           ))}
         </div>
+      ) : field.kind === "DATE" ? (
+        <DatePicker
+          value={Date.parse(field.value) ? new Date(field.value) : null}
+          onChange={(value) => {
+            setValue({ ...field, value: "" + value });
+          }}
+        />
       ) : field.kind === "DROPDOWN" ? (
         <div className="">
           <select

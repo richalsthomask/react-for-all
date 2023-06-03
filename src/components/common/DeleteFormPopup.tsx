@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { deleteForm } from "./api";
 import useUserAction from "../actions/userActions";
 
@@ -15,6 +15,13 @@ export default function DeleteForm({
 }) {
   const [loading, setLoading] = useState(false);
   const { handleError } = useUserAction();
+  const firstRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (firstRef.current) {
+      firstRef.current.focus();
+    }
+  }, []);
 
   const deleteFormApi = () => {
     setLoading(true);
@@ -66,6 +73,7 @@ export default function DeleteForm({
             </div>
             <div className="w-full flex flex-row justify-end gap-2">
               <button
+                ref={firstRef}
                 onClick={() => {
                   deleteFormApi();
                 }}
@@ -76,6 +84,9 @@ export default function DeleteForm({
               <button
                 onClick={() => {
                   closePopup();
+                }}
+                onBlur={() => {
+                  firstRef?.current?.focus();
                 }}
                 className="px-6 py-1.5 text-white font-semibold bg-blue-500 hover:bg-blue-600 rounded-lg"
               >

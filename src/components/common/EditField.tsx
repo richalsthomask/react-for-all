@@ -4,7 +4,7 @@ import { FieldResponse } from "../interfaces/apiResponses";
 
 const fieldsOptions: {
   label: string;
-  value: "TEXT" | "DROPDOWN" | "RADIO";
+  value: "TEXT" | "DROPDOWN" | "RADIO" | "DATE";
 }[] = [
   {
     label: "Text",
@@ -18,6 +18,10 @@ const fieldsOptions: {
   {
     label: "Radio",
     value: "RADIO",
+  },
+  {
+    label: "Date",
+    value: "DATE",
   },
 ];
 
@@ -81,6 +85,12 @@ export default function EditField({
                         value: null,
                       }
                     : selectedValue === "TEXT"
+                    ? {
+                        ...field,
+                        kind: selectedValue,
+                        value: "",
+                      }
+                    : selectedValue === "DATE"
                     ? {
                         ...field,
                         kind: selectedValue,

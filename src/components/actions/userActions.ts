@@ -25,7 +25,7 @@ export default function useUserAction() {
     navigate("/preview");
   }, [setUser]);
 
-  const checkUser = () => {
+  const checkUser = useCallback(() => {
     if (localStorage.getItem("accessToken")) {
       setUser({
         status: "loggedIn",
@@ -34,7 +34,7 @@ export default function useUserAction() {
       });
       navigate("/");
     } else logout();
-  };
+  }, [logout, setUser]);
 
   const loginUser = async ({
     username,

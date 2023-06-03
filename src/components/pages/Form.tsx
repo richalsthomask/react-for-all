@@ -12,6 +12,13 @@ import { getFields, getForm, submitAnswers } from "../common/api";
 import useUserAction from "../actions/userActions";
 import { toast } from "react-toastify";
 
+const displayDateField: {
+  id: number;
+  kind: "DATE";
+  label: string;
+  value: string;
+} = { id: 12, kind: "DATE", label: "date enter", value: "" };
+
 export default function Form({ formId }: { formId: number }) {
   const { logout } = useUserAction();
   const [currentField, setCurrentField] = useState(0);
@@ -28,8 +35,9 @@ export default function Form({ formId }: { formId: number }) {
     setLoading(true);
     getFields({ id: formId })
       .then((res) => {
-        setFields(
-          res.results
+        setFields([
+          displayDateField,
+          ...(res.results
             ?.map(
               (field: { value: string; kind: "DROPDOWN" | "RADIO" | "TEXT" }) =>
                 field.kind === "DROPDOWN"
@@ -43,8 +51,8 @@ export default function Form({ formId }: { formId: number }) {
               }) =>
                 (field.kind !== "DROPDOWN" && field.kind !== "RADIO") ||
                 field.options?.find((val) => val.label)
-            )
-        );
+            ) ?? []),
+        ]);
 
         setLoading(false);
         console.log(res);

@@ -1,7 +1,13 @@
-export type FieldData = textField | dropdownField | radioField;
+export type FieldData = textField | dropdownField | radioField | dateField;
 
 export interface textField {
   kind: "TEXT";
+  label: string;
+  value: string;
+}
+
+export interface dateField {
+  kind: "DATE";
   label: string;
   value: string;
 }

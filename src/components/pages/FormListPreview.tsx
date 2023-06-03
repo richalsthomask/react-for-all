@@ -14,7 +14,7 @@ export default function FormListPreview({
 }) {
   const [forms, setForms] = useState([]);
   const [page, setPage] = useState({
-    limit: 8,
+    limit: 9,
     offset: 0,
     total: 0,
     previous: null,
