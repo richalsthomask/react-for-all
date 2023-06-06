@@ -1,22 +1,41 @@
 import { useRoutes } from "raviger";
+import React, { Suspense } from "react";
 
-import FormList from "../components/pages/FormList";
-import FormEdit from "../components/pages/FormEdit";
-import FormListPreview from "../components/pages/FormListPreview";
-import Form from "../components/pages/Form";
 import FormAnswersSaved from "../components/pages/FormAnswersSaved";
+import LoadingScreen from "../components/common/LoadingScreen";
+
+const Form = React.lazy(() => import("../components/pages/Form"));
+const FormEdit = React.lazy(() => import("../components/pages/FormEdit"));
+const FormList = React.lazy(() => import("../components/pages/FormList"));
+const FormListPreview = React.lazy(
+  () => import("../components/pages/FormListPreview")
+);
 
 const privateRoutes = {
-  "/": () => <FormList searchString="" />,
-  "/form/:formId": ({ formId }: { formId: string }) => (
-    <FormEdit formId={parseFloat(formId)} />
+  "/": () => (
+    <Suspense fallback={<LoadingScreen />}>
+      <FormList searchString="" />
+    </Suspense>
   ),
-  "/preview": () => <FormListPreview />,
+  "/form/:formId": ({ formId }: { formId: string }) => (
+    <Suspense fallback={<LoadingScreen />}>
+      <FormEdit formId={parseFloat(formId)} />
+    </Suspense>
+  ),
+  "/preview": () => (
+    <Suspense fallback={<LoadingScreen />}>
+      <FormListPreview />
+    </Suspense>
+  ),
   "/preview/:formId": ({ formId }: { formId: string }) => (
-    <Form formId={parseFloat(formId)} />
+    <Suspense fallback={<LoadingScreen />}>
+      <Form formId={parseFloat(formId)} />
+    </Suspense>
   ),
   "/search/:search": ({ search }: { search: string }) => (
-    <FormList searchString={search} />
+    <Suspense fallback={<LoadingScreen />}>
+      <FormList searchString={search} />
+    </Suspense>
   ),
   "/submitted": () => <FormAnswersSaved />,
 };
