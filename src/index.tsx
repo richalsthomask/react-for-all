@@ -28,7 +28,13 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <button onClick={() => methodDoesNotExist()}>Break the world</button>
+    <button
+      onClick={() => {
+        throw Error();
+      }}
+    >
+      Break the world
+    </button>
   </React.StrictMode>
 );
 
